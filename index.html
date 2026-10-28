@@ -9,14 +9,14 @@
   --background: #ffffff; --foreground: #1a1a1e; --card: #ffffff;
   --muted: #f2f2f4; --muted-foreground: #6e6e76; --border: #dcdce0;
   --primary: #4f6ef7; --primary-foreground: #ffffff;
-  --red: #e5484d; --blue: #3b82f6; --orange: #f0762b; --purple: #8e5cd6;
+  --red: #e5484d; --blue: #3b82f6; --orange: #f0762b; --purple: #8e5cd6; --green: #2fa96a;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #16161a; --foreground: #ededf0; --card: #1f1f24;
     --muted: #26262c; --muted-foreground: #9a9aa4; --border: #35353d;
     --primary: #7d93ff; --primary-foreground: #101014;
-    --red: #ff6b6f; --blue: #5c9bff; --orange: #ff9a4d; --purple: #b48aff;
+    --red: #ff6b6f; --blue: #5c9bff; --orange: #ff9a4d; --purple: #b48aff; --green: #4cc38a;
   }
 }
 * { box-sizing: border-box; }
@@ -53,6 +53,25 @@ svg { display: block; width: 100%; height: auto; }
 .panel { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; align-items: flex-start; }
 #info { flex: 1 1 420px; }
 #list { flex: 0 1 460px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+.pane { margin-top: 4px; }
+.pane { margin-top: 4px; }
+#tree { columns: 3; column-gap: 14px; }
+#tree details { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 5px; break-inside: avoid; }
+#tree summary { cursor: pointer; padding: 6px 10px; font-size: 13px; list-style: none; display: flex; align-items: center; gap: 8px; }
+#tree summary::-webkit-details-marker { display: none; }
+#tree .titems { display: block; columns: 2; column-gap: 10px; padding: 2px 10px 8px; }
+#tree .trow { break-inside: avoid; margin-bottom: 2px; }
+@media (max-width: 860px) { #tree, #tree .titems { columns: 1; } }
+summary::-webkit-details-marker { display: none; }
+summary i.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+summary .cnt { margin-left: auto; color: var(--muted-foreground); font-size: 12px; }
+.titems { padding: 2px 10px 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 2px 8px; }
+.trow { cursor: pointer; padding: 3px 6px; border-radius: 6px; font-size: 12px; display: flex; gap: 6px; align-items: baseline; }
+.trow:hover { background: var(--muted); }
+.trow b { font-weight: 500; }
+.trow .nm { color: var(--muted-foreground); font-size: 11px; }
+.trow .tx { color: var(--muted-foreground); font-size: 11.5px; display: block; margin-top: 1px; }
+.trow.on { background: var(--muted); }
 .leg { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 10px;
   border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--foreground); cursor: pointer; font: 12px -apple-system, "PingFang SC", sans-serif; }
 .leg i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
@@ -198,6 +217,26 @@ svg { display: block; width: 100%; height: auto; }
         <line x1="99" y1="421" x2="106" y2="414" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
         <line x1="90" y1="424" x2="82" y2="426" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
       </g>
+      <!-- 保养耗材（绿） -->
+      <g fill="var(--green)">
+        <g class="pt" data-id="oilfilter" data-sys="maint" data-name="机油滤芯（机滤）" data-desc="藏在发动机侧面的小铁罐，里面的滤纸拦截机油中的金属屑和油泥。每次换机油必须同步换机滤——只换油不换滤，等于白换一半。">
+          <rect x="150" y="424" width="15" height="19" rx="4"/>
+          <line x1="153" y1="420" x2="153" y2="424" stroke="var(--green)" stroke-width="3"/>
+        </g>
+        <g class="pt" data-id="coolantres" data-sys="maint" data-name="冷却液膨胀水壶" data-desc="冷却液受热膨胀会流进这个半透明水壶，冷车时液位应在上、下刻线之间；液位下降提示冷却系统在泄漏，千万别等水温灯亮再处理。">
+          <rect x="164" y="358" width="13" height="18" rx="3" fill-opacity=".7"/>
+          <line x1="166" y1="363" x2="175" y2="363" stroke="var(--background)" stroke-width="1.5"/>
+          <line x1="166" y1="370" x2="175" y2="370" stroke="var(--background)" stroke-width="1.5"/>
+        </g>
+        <g class="pt" data-id="washer" data-sys="maint" data-name="玻璃水壶与喷水电机" data-desc="挡风玻璃冲洗液的储壶，冬天一定用防冻型玻璃水，否则会冻裂水壶和喷嘴；用玻璃水代替普通水刮玻璃，雨刮寿命也更长。">
+          <rect x="181" y="360" width="13" height="17" rx="3" fill-opacity=".7"/>
+          <circle cx="187" cy="368" r="3.5" fill="var(--background)"/>
+        </g>
+        <g class="pt" data-id="wiper" data-sys="maint" data-name="雨刮片" data-desc="雨刮胶条老化通常一年一换：刮水有条纹、有异响就是信号。停车时夏天别让胶条烤在滚烫的玻璃上，能多用好几个月。">
+          <line x1="354" y1="356" x2="400" y2="308" stroke="var(--foreground)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+          <path d="M400 308 l -8 4 l 6 3 z" fill="var(--foreground)" opacity=".8"/>
+        </g>
+      </g>
       <g class="pt" data-id="pistons" data-sys="eng" data-name="活塞与连杆（剖视示意）" data-desc="气缸剖开的瞬间就能看到心脏收缩的样子：燃气把活塞向下推，活塞经连杆甩动曲轴把往复运动变成旋转。发动机转得越快，活塞每分钟要在气缸里跑几千个来回。">
         <circle cx="209" cy="415" r="10" fill="var(--background)" stroke="var(--red)" stroke-width="2"/>
         <rect x="205" y="409" width="8" height="5" rx="1" fill="var(--red)"/>
@@ -312,13 +351,17 @@ svg { display: block; width: 100%; height: auto; }
   </div>
   <div style="flex:0 1 440px">
     <div id="legend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
-    <div id="list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start" id="list"></div>
   </div>
+</div>
+
+<div class="text-small text-muted" style="margin:16px 0 6px">全车零件树 —— 一辆整车约 3 万个零件，下面按系统收录约 100 项常见部件（点开看名字与说明，保养项标注了更换周期）</div>
+<div id="tree" style="columns:3;column-gap:14px"></div>
 </div>
 </main>
 
 <script>
-const SYS = { eng: ['发动机', 'var(--red)'], chs: ['底盘', 'var(--blue)'], body: ['车身', 'var(--orange)'], ele: ['电器', 'var(--purple)'] };
+const SYS = { eng: ['发动机', 'var(--red)'], chs: ['底盘', 'var(--blue)'], body: ['车身', 'var(--orange)'], ele: ['电器', 'var(--purple)'], maint: ['保养耗材', 'var(--green)'] };
 const pts = [...document.querySelectorAll('.pt')];
 let filterSys = 'all', selId = null;
 
@@ -389,6 +432,140 @@ document.getElementById('btnReset').addEventListener('click', () => {
   btnE.textContent = '拆解视图';
   btnX.textContent = '车身透视：开';
   stageSvg.classList.remove('xray-reject');
+});
+
+/* ============ 全车零件树 ============ */
+const TREE = {
+eng: [
+  ['气缸盖', '1', '盖在缸体上方，内含气道与气门，燃烧室的一半长在它身上'],
+  ['缸体', '1', '发动机主体结构，气缸孔和冷却水道都在里面'],
+  ['缸垫', '1', '缸体与缸盖间的密封件，"冲缸垫"就会烧冷却液、串气'],
+  ['活塞', '×4', '承受燃气压力往下做功，铝合金制，一辆车让它每分钟跑几千来回'],
+  ['活塞环', '每组3环', '两道气环封气、一道油环刮油，烧机油多半是它老化'],
+  ['连杆', '×4', '把活塞的往复运动甩成曲轴的旋转'],
+  ['曲轴', '1', '全车最贵的锻件之一，动力输出的源头'],
+  ['曲轴瓦/连杆瓦', '8+', '贴在轴颈上的滑动轴承，全靠油膜托着曲轴转，大修必换'],
+  ['飞轮', '1', '储存旋转能量让运转平顺，也是起动机啮合的齿圈'],
+  ['凸轮轴', '1-2', '按配气相位驱动气门开闭']
+],
+eng2: [
+  ['气门', '×16', '进气门吸气、排气门排气，间隙大了嗒嗒响'],
+  ['气门弹簧', '×16', '保证气门及时回位密封'],
+  ['正时链条/皮带', '1', '把曲轴转动精准传给凸轮轴；皮带 6-10 万 km 必换'],
+  ['张紧轮/导轮', '2', '保持正时系统张紧不打滑'],
+  ['机油泵', '1', '把机油加压送到每一个轴瓦'],
+  ['油底壳', '1', '储油池，底部放油螺栓就是换机油的口'],
+  ['喷油嘴', '×4', '按 ECU 指令把燃油雾化喷射'],
+  ['涡轮增压器', '选装', '用废气驱动压缩机增压进气，小排量也有大动力'],
+  ['氧传感器', '×2', '监测尾气含氧量，实时修正喷油'],
+  ['节温器', '1', '按水温决定冷却液走大循环还是小循环'],
+  ['水泵', '1', '驱动冷却液循环']
+],
+chs: [
+  ['离合器片', '手动挡1', '接合/切断发动机与变速箱，半联动起步烧的就是它'],
+  ['液力变矩器', '自动挡1', '靠油液传动力，附带锁止离合器省油'],
+  ['齿轮组与同步器', '多组', '换挡时同步器先把转速"对齐"再进挡，铁磨铁才没有打齿声'],
+  ['换挡拨叉', '2-3', '拨动同步器完成换挡'],
+  ['CVT 钢带', '部分车型', '无级变速箱的核心，两锥轮夹着链条式钢带无级变径'],
+  ['半轴', '×2', '把差速器的动力分给左右车轮'],
+  ['球头/橡胶衬套', '多个', '悬挂系统里的"关节"，老化后底盘就发松'],
+  ['副车架', '1', '悬挂、转向的安装基座，碰撞维修常整体换'],
+  ['控制臂', '×4', '车轮摆动的导轨'],
+  ['稳定杆', '1', '过弯抑制侧倾'],
+  ['转向拉杆', '×2', '推动前轮偏转，"前束"就在这里调'],
+  ['真空助力泵', '1', '用进气负压把踩踏板的力放大几倍'],
+  ['ABS/ESP 模块', '1+4传感器', '车轮打滑时每秒点刹几十次，防抱死保住转向能力'],
+  ['轮毂轴承', '×4', '车轮转动的滑动心轴，坏了一万码会嗡嗡响']
+],
+ele: [
+  ['点火线圈', '×4', '把 12V 电升到上万伏，击穿火花塞间隙放电点火'],
+  ['ECU 发动机电脑', '1', '全车大脑：每秒千万次运算，管喷油点火和扭矩'],
+  ['组合仪表', '1', '车速、转速、油量与报警灯的显示窗口'],
+  ['安全气囊模块', '2-8', '碰撞判定后 0.03 秒内点爆充气'],
+  ['线束总成', '1', '全车电线加起来近 1 公里、几公斤重'],
+  ['保险丝盒', '1', '每一路电器都有熔断保护'],
+  ['喇叭', '×2', '鸣笛提醒，法规要求必须响'],
+  ['雨刮电机+连杆', '1', '带动雨刮臂左右摆'],
+  ['电动车窗电机', '×4', '升降玻璃'],
+  ['中控锁电机', '×4', '遥控锁车落锁'],
+  ['BCM 车身控制器', '1', '管车门、灯光、雨刮等车身电器'],
+  ['倒车影像与传感器', '1+4', '泊车雷达探头装在保险杠上'],
+  ['OBD 诊断接口', '1', '维修时读取全车数据的入口']
+],
+body: [
+  ['翼子板', '×2', '前后轮上方的弧形覆盖板'],
+  ['A/B/C 柱', '×6', '侧面碰撞承力骨架，B 柱常用热成型钢'],
+  ['车顶', '1', '带天窗时需开孔并做好排水槽'],
+  ['加油口盖', '1', '小细节：很多车的油箱盖方向在角窗或油表箭头上提示'],
+  ['隔音棉/止震板', '多', 'NVH 静音工程，地板和轮包里都铺着'],
+  ['车漆涂层', '4 层', '电泳底漆-中涂-色漆-清漆，防锈靠的完整电泳'],
+  ['安全带', '×5', '卷收器在碰撞瞬间锁死，把人按在座位上'],
+  ['方向盘', '1', '中间藏着主驾安全气囊，多为可溃缩式转向柱']
+],
+maint: [
+  ['机油', '5000-10000 km', '发动机的血液：润滑、散热、清洁、防锈一体；全合成最耐久'],
+  ['机油滤芯（机滤）', '随机油同步换', '滤纸拦金属屑和油泥，只换油不换滤等于白换一半'],
+  ['空气滤芯', '2 万 km', '给发动机吸的"口罩"，堵塞后动力下降、油耗升高'],
+  ['空调滤芯', '1-2 万 km', '乘员的"口罩"：活性炭款还能吸附尾气异味与 PM2.5'],
+  ['汽油滤芯', '6 万 km/内置免维护', '过滤油箱输出的汽油，免拆洗车型藏在油箱里'],
+  ['防冻液', '2 年或 4 万 km', '冰点防冻、沸点防开锅还防腐，颜色不同切不可混加'],
+  ['刹车油', '2 年', '制动液吸水后沸点下降，长期不换时高温急刹会"软脚"'],
+  ['变速箱油', '6-8 万 km', 'AT/CVT/双离合油品规格完全不同，加错提前报废'],
+  ['转向助力油', '电动助力免维护', '液压助力才需要更换；电动车多为电动转向'],
+  ['火花塞', '2-10 万 km', '材质定寿命：镍合金 2 万、铂金 6 万、铱金 10 万 km'],
+  ['正时皮带', '6-10 万 km', '到里程必换——断裂会顶弯气门，大修发动机'],
+  ['雨刮片', '1 年', '胶条老化刮不净，有条纹异响就该换了'],
+  ['轮胎', '5-8 万 km 或 5 年', '橡胶会老化，磨损没到限也要按时间换'],
+  ['蓄电池', '3-4 年', '冬天是亏电高发期，到寿命冷启动就困难'],
+  ['刹车片', '3-6 万 km', '不用记里程：厚度低于 3mm 立即更换'],
+  ['玻璃水', '随用随加', '冬天用防冻型，否则冻裂水壶与喷嘴']
+]
+};
+// eng2 合并进 eng 显示
+const TREE2 = { eng: ['eng', 'eng2'] };
+
+const tree = document.getElementById('tree');
+Object.keys(SYS).forEach(key => {
+  const items = (TREE2[key] || [key]).flatMap(k => TREE[k] || []);
+  if (!items.length) return;
+  const d = document.createElement('details');
+  if (key !== 'maint') d.open = true;
+  const sum = document.createElement('summary');
+  sum.innerHTML = `<i class="dot" style="background:${SYS[key][1]}"></i>${SYS[key][0]}<span class="cnt">${items.length} 项</span>`;
+  d.appendChild(sum);
+  const box = document.createElement('div');
+  box.className = 'titems';
+  items.forEach(([nm, q, tx]) => {
+    const r = document.createElement('div');
+    r.className = 'trow';
+    const b = document.createElement('div');
+    const qty = document.createElement('span');
+    qty.className = 'nm';
+    qty.textContent = q;
+    b.innerHTML = `<b>${nm}</b>`;
+    b.appendChild(qty);
+    b.appendChild(Object.assign(document.createElement('span'), { className: 'tx', textContent: tx }));
+    b.style.flex = '1';
+    r.appendChild(b);
+    r.addEventListener('click', () => {
+      tree.querySelectorAll('.trow').forEach(x => x.classList.remove('on'));
+      r.classList.add('on');
+      const match = pts.find(p => p.dataset.name === nm);
+      if (match) { select(match.dataset.id); return; }
+      // 树内条目：直接展示说明
+      selId = null; refresh();
+      document.getElementById('info-empty').hidden = true;
+      document.getElementById('info-box').hidden = false;
+      document.getElementById('i-name').textContent = nm + (q && !/km|年/.test(q) ? `（${q}）` : '');
+      const s = document.getElementById('i-sys');
+      s.textContent = SYS[key][0];
+      s.style.background = SYS[key][1];
+      document.getElementById('i-desc').textContent = tx;
+    });
+    box.appendChild(r);
+  });
+  d.appendChild(box);
+  tree.appendChild(d);
 });
 </script>
 </body>
