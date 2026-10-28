@@ -49,6 +49,8 @@ svg { display: block; width: 100%; height: auto; }
 .exploded #g-ele { transform: translateY(-118px); }
 .exploded #g-body { transform: translateY(-56px); }
 .shellmask { fill: var(--orange); fill-opacity: .5; stroke: var(--orange); stroke-width: 3; }
+.lbl { fill: var(--foreground); font-size: 13px; font-family: inherit; }
+.capt { fill: var(--foreground); font-size: 14px; font-weight: 500; font-family: inherit; }
 .xray-reject .shellmask { fill-opacity: .94; }
 .panel { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; align-items: flex-start; }
 #info { flex: 1 1 420px; }
@@ -90,7 +92,7 @@ summary .cnt { margin-left: auto; color: var(--muted-foreground); font-size: 12p
 </header>
 
 <div class="stage">
-<svg viewBox="0 95 1000 425" role="img" aria-label="汽车剖面拆解图：四大系统彩色标注">
+<svg viewBox="0 95 1370 670" role="img" aria-label="汽车剖面拆解图：四大系统彩色标注 + 内部明细剖视">
   <defs>
     <g id="wheel">
       <circle r="52" fill="#1c1c20"/>
@@ -336,6 +338,140 @@ summary .cnt { margin-left: auto; color: var(--muted-foreground); font-size: 12p
 
    </g>
   </g>
+
+  <!-- ============ 明细剖视栏（挂图右侧插图） ============ -->
+  <g fill="var(--red)">
+    <rect x="1015" y="125" width="345" height="292" rx="10" fill="none" stroke="var(--border)" stroke-dasharray="5 4"/>
+    <text class="capt" x="1030" y="147">发动机内部明细</text>
+
+    <g class="pt" data-id="crank" data-sys="eng" data-name="曲轴" data-desc="发动机的“脊梁”：六个曲拐错开布置，把活塞的往复运动转成旋转输出。轴颈处由轴瓦和压力油膜托着，几乎不直接摩擦，靠平衡块抵消振动。">
+      <line x1="1035" y1="166" x2="1135" y2="166" stroke="var(--red)" stroke-width="4"/>
+      <circle cx="1048" cy="160" r="5"/><circle cx="1068" cy="172" r="5"/><circle cx="1088" cy="160" r="5"/><circle cx="1108" cy="172" r="5"/><circle cx="1128" cy="160" r="5"/>
+      <circle cx="1048" cy="160" r="2" fill="var(--background)"/><circle cx="1088" cy="160" r="2" fill="var(--background)"/>
+    </g>
+    <g class="pt" data-id="pistondetail" data-sys="eng" data-name="活塞与连杆 ×4" data-desc="四个活塞在气缸里一上一下轮流做功：燃气推活塞下行，连杆甩动曲轴再转回来。活塞顶部还要承受两千摄氏度燃气的烘烤。">
+      <g transform="translate(1043,182)"><rect width="10" height="9" rx="1.5"/><line x1="5" y1="9" x2="9" y2="18" stroke="var(--red)" stroke-width="2.5"/><circle cx="10" cy="19" r="2.5"/></g>
+      <g transform="translate(1063,182)"><rect width="10" height="9" rx="1.5"/><line x1="5" y1="9" x2="9" y2="18" stroke="var(--red)" stroke-width="2.5"/><circle cx="10" cy="19" r="2.5"/></g>
+      <g transform="translate(1083,182)"><rect width="10" height="9" rx="1.5"/><line x1="5" y1="9" x2="9" y2="18" stroke="var(--red)" stroke-width="2.5"/><circle cx="10" cy="19" r="2.5"/></g>
+      <g transform="translate(1103,182)"><rect width="10" height="9" rx="1.5"/><line x1="5" y1="9" x2="9" y2="18" stroke="var(--red)" stroke-width="2.5"/><circle cx="10" cy="19" r="2.5"/></g>
+    </g>
+    <g class="pt" data-id="rings" data-sys="eng" data-name="活塞环组" data-desc="每缸三环：上面两道气环封住燃烧高压气，最下面油环把缸壁多余机油刮回油底壳——油环老化弹性衰退，机油就窜进燃烧室变“烧机油”。">
+      <g transform="translate(1040,224)">
+        <rect width="26" height="5" rx="2"/><rect y="7" width="26" height="5" rx="2" opacity=".8"/><rect y="14" width="26" height="5" rx="2" opacity=".6"/>
+      </g>
+    </g>
+    <g class="pt" data-id="headgasket" data-sys="eng" data-name="缸垫" data-desc="被压在缸体与缸盖之间的密封片，四周一圈是缸孔，环形的是水道油道。发动机过热“冲了缸垫”，冷却液就会窜进气缸。">
+      <rect x="1038" y="252" width="34" height="12" rx="3" fill="none" stroke="var(--red)" stroke-width="3"/>
+      <circle cx="1044" cy="258" r="2"/><circle cx="1066" cy="258" r="2"/>
+    </g>
+    <g class="pt" data-id="camshaft" data-sys="eng" data-name="凸轮轴" data-desc="轴上一圈圈“桃形”凸轮，转动时按设计好的相位把气门压下去。凸轮轴转两圈，四个冲程才走完一个循环——这就是四冲程发动机转速减半的秘密。">
+      <line x1="1038" y1="282" x2="1140" y2="282" stroke="var(--red)" stroke-width="4"/>
+      <ellipse cx="1052" cy="278" rx="5" ry="9"/><ellipse cx="1090" cy="286" rx="5" ry="9"/><ellipse cx="1128" cy="278" rx="5" ry="9"/>
+    </g>
+    <g class="pt" data-id="valves" data-sys="eng" data-name="气门与弹簧" data-desc="蘑菇形状的进排气门被凸轮压开、弹簧拉回，每缸 4 个（2 进 2 排）。进气门比排气门大一圈，因为吸进去的只有空气，突出的却是废气。">
+      <g transform="translate(1045,308)">
+        <line x1="0" y1="0" x2="0" y2="16" stroke="var(--red)" stroke-width="3"/><path d="M-6 16 h 12 l -3 4 h -6 z"/>
+        <path d="M8 6 l 5 2 l -5 2 l 5 2 l -5 2" fill="none" stroke="var(--red)" stroke-width="2"/>
+      </g>
+    </g>
+    <g class="pt" data-id="timingchain" data-sys="eng" data-name="正时链条" data-desc="环在曲轴链轮和凸轮轴链轮之间，严格保持 2:1 转速关系，气门和活塞才不会“对不上表”。链条免维护，皮带到里程必须换。">
+      <ellipse cx="1072" cy="360" rx="34" ry="16" fill="none" stroke="var(--red)" stroke-width="3" stroke-dasharray="4 3"/>
+      <circle cx="1046" cy="360" r="7" fill="var(--red)"/><circle cx="1100" cy="360" r="7" fill="var(--red)"/>
+    </g>
+    <g class="pt" data-id="injector" data-sys="eng" data-name="喷油嘴" data-desc="缸内直喷的喷油压力可达 200 bar 以上，把汽油雾化成雾状颗粒喷进燃烧室——雾越细，混合越均匀，燃烧越干净。">
+      <g transform="translate(1045,392)">
+        <rect x="-2" y="-6" width="12" height="10" rx="2"/><path d="M2 4 h 6 l -3 8 z"/><line x1="18" y1="0" x2="4" y2="0" stroke="var(--red)" stroke-width="2.5"/>
+      </g>
+    </g>
+    <g class="pt" data-id="oilpump" data-sys="eng" data-name="机油泵" data-desc="挂在油底壳里浸着油工作，把机油加压后经滤芯送到曲轴、凸轮轴每一个轴颈；低液位或劣质机油时它先吸空，报警灯“小油壶”亮就要立刻停车。">
+      <circle cx="1075" cy="394" r="10" fill="none" stroke="var(--red)" stroke-width="3"/>
+      <circle cx="1071" cy="394" r="3.5"/><circle cx="1079" cy="394" r="3.5"/>
+    </g>
+  </g>
+
+  <g fill="var(--blue)">
+    <rect x="1015" y="430" width="345" height="146" rx="10" fill="none" stroke="var(--border)" stroke-dasharray="5 4"/>
+    <text class="capt" x="1030" y="452">传动与差速明细</text>
+
+    <g class="pt" data-id="converter" data-sys="chs" data-name="液力变矩器（自动挡）" data-desc="手动挡的离合器在自动挡换成了它：两半充油的“甜甜圈”对转，靠油液柔性传力，起步再挫不了车；高速时锁止离合器锁死，直接刚性传动省油。">
+      <g transform="translate(1068,484)">
+        <ellipse rx="16" ry="13" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <ellipse rx="8" ry="6" fill="none" stroke="var(--blue)" stroke-width="2"/>
+      </g>
+    </g>
+    <g class="pt" data-id="gears" data-sys="chs" data-name="齿轮组与同步器" data-desc="变速箱里几十个齿轮组合出不同传动比；换挡瞬间同步器先靠锥面摩擦把两边转速“对齐”，否则齿轮硬合会打齿——换挡生涩通常是同步器磨损。">
+      <g transform="translate(1068,512)">
+        <circle r="9" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <circle cx="20" cy="-2" r="6.5" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <g stroke="var(--blue)" stroke-width="2"><line x1="-9" y1="0" x2="-12" y2="0"/><line x1="9" y1="0" x2="12" y2="0"/><line x1="0" y1="-9" x2="0" y2="-12"/><line x1="0" y1="9" x2="0" y2="12"/></g>
+      </g>
+    </g>
+    <g class="pt" data-id="fork" data-sys="chs" data-name="换挡拨叉" data-desc="摘挡挂挡的手感来自拨叉推着同步器滑套左右移动，内侧还有互锁自锁机构，防止同时挂两个挡或挡位跳脱。">
+      <g transform="translate(1058,536)">
+        <path d="M0 0 h 22 l 5 8 l 5 -8" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="0" y1="0" x2="-10" y2="-6" stroke="var(--blue)" stroke-width="4"/>
+      </g>
+    </g>
+    <g class="pt" data-id="diffgear" data-sys="chs" data-name="差速器锥齿轮" data-desc="一对成 90 度的锥齿轮在这里完成最后一次减速，行星齿轮再允许左右半轴转速不同——过弯内侧轮慢、外侧轮快，轮胎才不拖拽。">
+      <g transform="translate(1075,564)">
+        <circle r="10" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <circle cx="17" cy="0" r="5.5" fill="none" stroke="var(--blue)" stroke-width="3"/>
+      </g>
+    </g>
+  </g>
+
+  <g fill="var(--purple)">
+    <rect x="1015" y="576" width="345" height="168" rx="10" fill="none" stroke="var(--border)" stroke-dasharray="5 4"/>
+    <text class="capt" x="1030" y="598">制动与电器明细</text>
+
+    <g stroke="var(--blue)" fill="var(--blue)">
+    <g class="pt" data-id="discpad" data-sys="chs" data-name="制动盘与刹车片" data-desc="放大看刹车的工作面：两侧刹车片从两个方向夹紧旋转的刹车盘，摩擦面要么平整要么有划槽，磨损后踩刹车方向会“跑偏”，就是左右片厚度不均。">
+      <g transform="translate(1072,630)">
+        <circle r="14" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <circle r="3" fill="var(--blue)"/>
+        <rect x="-24" y="-7" width="8" height="14" rx="3"/><rect x="16" y="-7" width="8" height="14" rx="3"/>
+      </g>
+    </g>
+    <g class="pt" data-id="caliperx" data-sys="chs" data-name="制动卡钳（剖面）" data-desc="卡的“钳口”里是液压活塞：主缸来油推动活塞把内侧片压向盘面，反作用力又把浮动钳拉向外侧片——所以盘两边磨得一样快。">
+      <g transform="translate(1088,658)">
+        <path d="M-16 -10 a 14 14 0 0 1 24 0 v 20 a 14 14 0 0 1 -24 0 v -20" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <rect x="-4" y="-8" width="8" height="16" rx="3"/>
+      </g>
+    </g>
+    <g class="pt" data-id="hub" data-sys="chs" data-name="轮毂轴承与螺栓" data-desc="车轮装在这颗法兰上：双列角接触轴承同时承受车重与转向侧向力；五个螺栓按对角顺序分次拧紧，扭力过大轴颈会被拉伤。">
+      <g transform="translate(1080,686)">
+        <circle r="11" fill="none" stroke="var(--blue)" stroke-width="3"/>
+        <g stroke="var(--blue)" stroke-width="3"><line x1="0" y1="-11" x2="0" y2="-16"/><line x1="10.5" y1="-3.4" x2="15.2" y2="-4.9"/><line x1="6.5" y1="9" x2="9.4" y2="13"/><line x1="-6.5" y1="9" x2="-9.4" y2="13"/><line x1="-10.5" y1="-3.4" x2="-15.2" y2="-4.9"/></g>
+      </g>
+    </g>
+    </g>
+
+    <g class="pt" data-id="coil" data-sys="ele" data-name="点火线圈" data-desc="初级线圈通电储能、断电瞬间在次级感应出上万伏高压，经火花塞放电——发动机每转两圈，每个气缸都要来一次这样的“闪电”。">
+      <g transform="translate(1052,716)">
+        <rect width="18" height="13" rx="4"/>
+        <rect x="7" y="13" width="4" height="8"/>
+        <line x1="34" y1="6" x2="20" y2="6" stroke="var(--purple)" stroke-width="2.5"/>
+      </g>
+    </g>
+    <g class="pt" data-id="ecu" data-sys="ele" data-name="ECU 与保险丝盒" data-desc="ECU 电路板接收几百个传感器信号，控制喷油点火；旁边的保险丝盒里每一路电路都串着熔丝，电器短路时“牺牲”的是几毛钱一根的保险丝而不是昂贵的线束。">
+      <g transform="translate(1048,742)">
+        <rect width="22" height="15" rx="3" fill="var(--purple)"/>
+        <rect x="2" y="3" width="8" height="9" rx="1" fill="var(--background)"/>
+        <rect x="30" y="-4" width="30" height="22" rx="4" fill="none" stroke="var(--purple)" stroke-width="2.5"/>
+        <rect x="34" y="0" width="5" height="6" rx="1" fill="var(--purple)"/>
+        <rect x="41" y="0" width="5" height="6" rx="1" fill="var(--purple)"/>
+        <rect x="34" y="9" width="5" height="6" rx="1" fill="var(--purple)"/>
+        <rect x="41" y="9" width="5" height="6" rx="1" fill="var(--purple)"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- 明细栏引线 -->
+  <g stroke="var(--muted-foreground)" stroke-dasharray="2 4" opacity=".7" fill="none">
+    <path d="M1015 250 C 900 260 860 260 815 250"/>
+    <path d="M1015 500 C 920 540 880 540 825 545"/>
+    <path d="M1015 636 C 940 620 930 560 920 510"/>
+  </g>
 </svg>
 </div>
 
@@ -355,7 +491,7 @@ summary .cnt { margin-left: auto; color: var(--muted-foreground); font-size: 12p
   </div>
 </div>
 
-<div class="text-small text-muted" style="margin:16px 0 6px">全车零件树 —— 一辆整车约 3 万个零件，下面按系统收录约 100 项常见部件（点开看名字与说明，保养项标注了更换周期）</div>
+<div class="text-small text-muted" style="margin:16px 0 6px">全车零件树 —— 一辆整车约 3 万个零件：图上已画出 55 个可直接点击的部件，下面零件树按系统再收录 72 项（点开看名字与说明，保养项标注了更换周期）</div>
 <div id="tree" style="columns:3;column-gap:14px"></div>
 </div>
 </main>
@@ -415,6 +551,20 @@ function select(id) {
 
 pts.forEach(p => p.addEventListener('click', () => select(p.dataset.id)));
 fillList();
+
+/* 给右侧明细栏（x>1000 的插图）的每个零件自动补名牌 */
+pts.forEach(p => {
+  try {
+    const bb = p.getBBox();
+    if (bb.x < 1000) return;
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('class', 'lbl');
+    t.setAttribute('x', bb.x + bb.width + 10);
+    t.setAttribute('y', bb.y + bb.height / 2 + 5);
+    t.textContent = p.dataset.name.replace(/（.+?）| ×.+/, '');
+    p.parentNode.parentNode.appendChild(t);
+  } catch (e) {}
+});
 
 const stageSvg = document.querySelector('.stage');
 const btnE = document.getElementById('btnExplode'), btnX = document.getElementById('btnXray');
