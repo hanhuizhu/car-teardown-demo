@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>汽车剖面拆解教室</title>
+<style>
+:root {
+  --background: #ffffff; --foreground: #1a1a1e; --card: #ffffff;
+  --muted: #f2f2f4; --muted-foreground: #6e6e76; --border: #dcdce0;
+  --primary: #4f6ef7; --primary-foreground: #ffffff;
+  --red: #e5484d; --blue: #3b82f6; --orange: #f0762b; --purple: #8e5cd6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #16161a; --foreground: #ededf0; --card: #1f1f24;
+    --muted: #26262c; --muted-foreground: #9a9aa4; --border: #35353d;
+    --primary: #7d93ff; --primary-foreground: #101014;
+    --red: #ff6b6f; --blue: #5c9bff; --orange: #ff9a4d; --purple: #b48aff;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--foreground);
+  font: 14px/1.55 -apple-system, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif; }
+h1 { font-size: 18px; font-weight: 500; margin: 0; }
+h3 { font-size: 14px; font-weight: 500; margin: 0; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; }
+header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.text-small { font-size: 12px; }
+.text-muted { color: var(--muted-foreground); }
+.btn { appearance: none; font: inherit; font-size: 13px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--card); color: var(--foreground); padding: 5px 12px; cursor: pointer; }
+.btn:hover { background: var(--muted); }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.btn-xs { font-size: 12px; padding: 3px 8px; border-radius: 6px; }
+.badge { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 12px; color: #fff; }
+.stage { border: 1px solid var(--border); border-radius: 12px; background: var(--card); overflow: hidden; }
+svg { display: block; width: 100%; height: auto; }
+
+/* —— 交互与拆解动画 —— */
+.pt { cursor: pointer; transition: filter .15s; }
+.pt:hover { filter: brightness(1.12); }
+.pt.sel { filter: drop-shadow(0 0 5px var(--primary)) brightness(1.18); }
+.dimmed { opacity: .13; transition: opacity .3s; }
+#g-chs, #g-eng, #g-ele, #g-body, #g-root, #g-all { transition: transform .8s cubic-bezier(.3,.7,.2,1); }
+.exploded #g-root { transform: translateY(-92px); }
+.exploded #g-chs { transform: translateY(96px); }
+.exploded #g-eng { transform: translateY(48px); }
+.exploded #g-ele { transform: translateY(-118px); }
+.exploded #g-body { transform: translateY(-56px); }
+.shellmask { fill: var(--orange); fill-opacity: .5; stroke: var(--orange); stroke-width: 3; }
+.xray-reject .shellmask { fill-opacity: .94; }
+.panel { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; align-items: flex-start; }
+#info { flex: 1 1 420px; }
+#list { flex: 0 1 460px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+.leg { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 10px;
+  border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--foreground); cursor: pointer; font: 12px -apple-system, "PingFang SC", sans-serif; }
+.leg i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.leg.on { background: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>汽车剖面拆解图</h1>
+  <span class="text-small text-muted">点零件看讲解 · 顶部按钮切换拆解 / 透视 / 复原</span>
+  <span style="flex:1"></span>
+  <button type="button" class="btn btn-primary" id="btnExplode">拆解视图</button>
+  <button type="button" class="btn" id="btnXray">车身透视：开</button>
+  <button type="button" class="btn" id="btnReset">复原</button>
+</header>
+
+<div class="stage">
+<svg viewBox="0 95 1000 425" role="img" aria-label="汽车剖面拆解图：四大系统彩色标注">
+  <defs>
+    <g id="wheel">
+      <circle r="52" fill="#1c1c20"/>
+      <circle r="52" fill="none" stroke="#000" stroke-opacity=".5"/>
+      <circle r="33" fill="none" stroke="#b9b9c2" stroke-width="7"/>
+      <circle r="7" fill="#b9b9c2"/>
+      <g stroke="#b9b9c2" stroke-width="6" stroke-linecap="round">
+        <line x1="0" y1="-12" x2="0" y2="-30"/>
+        <line x1="11.4" y1="6" x2="27.6" y2="15"/>
+        <line x1="-11.4" y1="6" x2="-27.6" y2="15"/>
+      </g>
+    </g>
+    <g id="spring" stroke="var(--blue)" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M0 0 l 13 9 l -13 9 l 13 9 l -13 9 l 13 9"/>
+    </g>
+  </defs>
+
+  <!-- 地面 -->
+  <g font-family="inherit">
+    <line x1="30" y1="500" x2="970" y2="500" stroke="var(--border)" stroke-width="2"/>
+    <ellipse cx="210" cy="500" rx="78" ry="7" fill="var(--foreground)" opacity=".08"/>
+    <ellipse cx="788" cy="500" rx="78" ry="7" fill="var(--foreground)" opacity=".08"/>
+  </g>
+
+  <g id="g-all">
+   <g id="g-root">
+
+    <!-- ============ 底盘（蓝） ============ -->
+    <g id="g-chs" fill="var(--blue)">
+      <g class="pt" data-id="exhaust" data-sys="chs" data-name="排气管与消声器" data-desc="发动机排出的高温废气经三元催化器净化，再由消声器降噪后从车尾排出；排气管温度很高，车底常有隔热板护着它。">
+        <path d="M258 452 C 330 464 600 464 700 458" fill="none" stroke="var(--blue)" stroke-width="7" stroke-linecap="round"/>
+        <rect x="640" y="449" width="86" height="18" rx="9"/>
+        <line x1="726" y1="458" x2="905" y2="458" stroke="var(--blue)" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="908" cy="458" rx="7" ry="9"/>
+      </g>
+      <g class="pt" data-id="tank" data-sys="chs" data-name="燃油箱" data-desc="汽油储存在这里，油泵把油加压送到发动机；油量表见底时，油泵吸不到油容易过热损坏，所以别长期把油用到见底。">
+        <rect x="560" y="440" width="96" height="26" rx="10"/>
+        <circle cx="608" cy="436" r="4"/>
+      </g>
+      <g class="pt" data-id="shaft" data-sys="chs" data-name="传动轴" data-desc="把变速箱输出的旋转动力传到后轮，是动力到达车轮前的最后一棒；两端万向节让它在颠簸中也能顺畅转动。">
+        <line x1="308" y1="422" x2="772" y2="446" stroke="var(--blue)" stroke-width="6"/>
+        <circle cx="308" cy="422" r="6"/><circle cx="772" cy="446" r="6"/>
+      </g>
+      <g class="pt" data-id="gearbox" data-sys="chs" data-name="变速箱" data-desc="把发动机的动力按需变速增扭：起步爬坡用低挡（力气大、速度慢），高速巡航用高挡（转速低、省油）。手动、自动、双离合只是换挡的方式不同。">
+        <rect x="248" y="398" width="58" height="40" rx="5"/>
+        <line x1="256" y1="406" x2="298" y2="406" stroke="var(--background)" stroke-width="3"/>
+        <line x1="256" y1="414" x2="298" y2="414" stroke="var(--background)" stroke-width="3"/>
+        <line x1="256" y1="422" x2="298" y2="422" stroke="var(--background)" stroke-width="3"/>
+      </g>
+      <g class="pt" data-id="steer" data-sys="chs" data-name="转向机构" data-desc="方向盘经转向柱带动齿轮齿条式转向机，再由左右横拉杆推动两个前轮同步偏转；四轮定位不准时车子会跑偏，调的就是这里的几何角度。">
+        <line x1="140" y1="452" x2="290" y2="444" stroke="var(--blue)" stroke-width="7"/>
+        <rect x="205" y="440" width="42" height="16" rx="5"/>
+        <line x1="150" y1="452" x2="150" y2="486" stroke="var(--blue)" stroke-width="5"/>
+      </g>
+      <g class="pt" data-id="susp" data-sys="chs" data-name="悬架（弹簧减振器）" data-desc="连接车轮与车身的弹性机构，吸收路面颠簸，让轮胎始终贴住地面。调校偏软偏舒适、偏硬偏操控，一套好悬架既要坐得舒服也要抓得住地。">
+        <use href="#spring" x="188" y="388"/>
+        <line x1="210" y1="382" x2="210" y2="440" stroke="var(--blue)" stroke-width="8" stroke-linecap="round"/>
+        <path d="M210 444 L 168 470" fill="none" stroke="var(--blue)" stroke-width="7" stroke-linecap="round"/>
+        <use href="#spring" x="766" y="388"/>
+        <line x1="788" y1="382" x2="788" y2="440" stroke="var(--blue)" stroke-width="8" stroke-linecap="round"/>
+        <path d="M788 444 L 830 470" fill="none" stroke="var(--blue)" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <g class="pt" data-id="wheels" data-sys="chs" data-name="车轮与轮胎" data-desc="全车唯一与地面接触的部件，承担驱动、制动、转向和支撑整车重量。胎压与花纹深度直接决定抓地力，雨天制动距离变长大多是因为轮胎。">
+        <use href="#wheel" x="210" y="448"/>
+        <use href="#wheel" x="788" y="448"/>
+      </g>
+      <g class="pt" data-id="brake" data-sys="chs" data-name="刹车盘、刹车片与卡钳" data-desc="盘式制动的原理：刹车盘随车轮一起旋转，踩下踏板时卡钳内的两片刹车片像钳子一样夹紧刹车盘，靠摩擦把动能变成热散掉。刹车片是易损件，磨到报警厚度必须更换，否则盘面会被刮伤。">
+        <g transform="translate(210,448)">
+          <circle r="30" fill="#9aa0a8"/>
+          <circle r="30" fill="none" stroke="#6d7378" stroke-width="3"/>
+          <circle r="12" fill="none" stroke="#6d7378" stroke-width="3"/>
+          <circle cx="0" cy="-21" r="3" fill="#1c1c20"/><circle cx="21" cy="0" r="3" fill="#1c1c20"/><circle cx="0" cy="21" r="3" fill="#1c1c20"/><circle cx="-21" cy="0" r="3" fill="#1c1c20"/>
+          <rect x="16" y="-32" width="15" height="20" rx="6" fill="var(--blue)"/>
+        </g>
+        <g transform="translate(788,448)">
+          <circle r="30" fill="#9aa0a8"/>
+          <circle r="30" fill="none" stroke="#6d7378" stroke-width="3"/>
+          <circle r="12" fill="none" stroke="#6d7378" stroke-width="3"/>
+          <circle cx="0" cy="-21" r="3" fill="#1c1c20"/><circle cx="21" cy="0" r="3" fill="#1c1c20"/><circle cx="0" cy="21" r="3" fill="#1c1c20"/><circle cx="-21" cy="0" r="3" fill="#1c1c20"/>
+          <rect x="-31" y="-32" width="15" height="20" rx="6" fill="var(--blue)"/>
+        </g>
+      </g>
+      <g class="pt" data-id="brakepedal" data-sys="chs" data-name="制动踏板与液压管路" data-desc="踩踏板的力经真空助力器放大后传给制动主缸，主缸把压力沿液压管路分给四个轮的卡钳；万一某个管路失压，对角的通路仍能保住一半制动力——这就是双回路制动设计。">
+        <rect x="344" y="364" width="10" height="9" rx="2"/>
+        <path d="M340 366 l -6 12" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M348 374 C 300 420 240 446 206 448" fill="none" stroke="var(--blue)" stroke-width="2.5" opacity=".8"/>
+        <path d="M348 374 C 420 448 640 448 776 446" fill="none" stroke="var(--blue)" stroke-width="2.5" opacity=".8"/>
+      </g>
+      <g class="pt" data-id="diff" data-sys="chs" data-name="主减速器与差速器" data-desc="传动轴带动的锥齿轮在这里最后减速增扭，再分给两根半轴；差速器的妙处在于让左右车轮转弯时可以转速不同——没有它，过弯轮胎就得拖拽打滑。">
+        <circle cx="772" cy="446" r="11"/>
+        <circle cx="772" cy="446" r="4" fill="var(--background)"/>
+        <g fill="var(--blue)"><rect x="784" y="443" width="26" height="6" rx="3"/></g>
+      </g>
+    </g>
+
+    <!-- ============ 发动机（红） ============ -->
+    <g id="g-eng" fill="var(--red)">
+      <g class="pt" data-id="exhaustman" data-sys="eng" data-name="排气歧管与排气管" data-desc="收集每个气缸排出的高温废气，汇总到排气管去净化消音——图片下方的蓝色排气管就是从它这里接走的。">
+        <path d="M242 408 q 22 6 26 26 M250 400 q 26 6 30 26" fill="none" stroke="var(--red)" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <g class="pt" data-id="radiator" data-sys="eng" data-name="散热器（水箱）" data-desc="给带走了发动机热量的冷却液降温，后面的风扇帮它吹风。它一旦漏水，发动机很快过热“开锅”，仪表上的水温灯就会报警。">
+        <rect x="100" y="394" width="20" height="50" rx="3"/>
+        <line x1="106" y1="398" x2="106" y2="440" stroke="var(--background)" stroke-width="2"/>
+        <line x1="113" y1="398" x2="113" y2="440" stroke="var(--background)" stroke-width="2"/>
+      </g>
+      <g class="pt" data-id="engine" data-sys="eng" data-name="发动机总成（缸体·活塞·曲轴）" data-desc="汽车的心脏：气缸里的活塞被燃烧的燃气推动往复运动，经连杆带动曲轴旋转输出动力。四个冲程——“吸气、压缩、做功、排气”周而复始。">
+        <path d="M186 436 h 42 l 6 14 h -54 z"/>
+        <rect x="172" y="398" width="70" height="40" rx="5"/>
+        <line x1="192" y1="404" x2="192" y2="432" stroke="var(--background)" stroke-width="3"/>
+        <line x1="207" y1="404" x2="207" y2="432" stroke="var(--background)" stroke-width="3"/>
+        <line x1="222" y1="404" x2="222" y2="432" stroke="var(--background)" stroke-width="3"/>
+        <rect x="175" y="382" width="64" height="18" rx="3"/>
+        <rect x="179" y="371" width="56" height="13" rx="4"/>
+        <circle cx="235" cy="424" r="10" fill="var(--red)"/>
+        <circle cx="235" cy="424" r="4" fill="var(--background)"/>
+      </g>
+      <g class="pt" data-id="intake" data-sys="eng" data-name="进气歧管" data-desc="把过滤后的空气均匀分配到每个气缸，空气与燃油按比例混合后进入气缸燃烧；进气越顺畅、分配越均匀，燃烧越充分、动力越足。">
+        <path d="M238 374 q 18 -10 26 4" fill="none" stroke="var(--red)" stroke-width="7" stroke-linecap="round"/>
+      </g>
+      <g class="pt" data-id="coolpipe" data-sys="eng" data-name="冷却水管与风扇" data-desc="冷却液在水泵驱动下循环：流进气缸体吸热，再流到散热器放热；节温器按水温决定走大循环还是小循环，让发动机保持约 90℃ 的最佳工作温度。">
+        <line x1="120" y1="420" x2="172" y2="420" stroke="var(--red)" stroke-width="5"/>
+        <circle cx="94" cy="420" r="8"/>
+        <line x1="94" y1="420" x2="94" y2="410" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="99" y1="421" x2="106" y2="414" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="90" y1="424" x2="82" y2="426" stroke="var(--red)" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <g class="pt" data-id="pistons" data-sys="eng" data-name="活塞与连杆（剖视示意）" data-desc="气缸剖开的瞬间就能看到心脏收缩的样子：燃气把活塞向下推，活塞经连杆甩动曲轴把往复运动变成旋转。发动机转得越快，活塞每分钟要在气缸里跑几千个来回。">
+        <circle cx="209" cy="415" r="10" fill="var(--background)" stroke="var(--red)" stroke-width="2"/>
+        <rect x="205" y="409" width="8" height="5" rx="1" fill="var(--red)"/>
+        <line x1="209" y1="414" x2="212" y2="418" stroke="var(--red)" stroke-width="2.5"/>
+        <circle cx="212" cy="419" r="2.5" fill="var(--red)"/>
+      </g>
+      <g class="pt" data-id="cat" data-sys="eng" data-name="三元催化器" data-desc="排气管上的“净化站”：铂、钯、铑三种贵金属把废气里的 CO、HC、NOx 转化成无害气体，必须烧很热的汽油才能达到工作温度——冷启动时尾气最脏。">
+        <rect x="326" y="448" width="34" height="18" rx="9"/>
+        <line x1="334" y1="452" x2="334" y2="462" stroke="var(--background)" stroke-width="2"/>
+        <line x1="342" y1="452" x2="342" y2="462" stroke="var(--background)" stroke-width="2"/>
+        <line x1="350" y1="452" x2="350" y2="462" stroke="var(--background)" stroke-width="2"/>
+      </g>
+      <g class="pt" data-id="airbox" data-sys="eng" data-name="空气滤清器与节气门" data-desc="空气进入发动机的第一站：滤纸挡住沙尘保护气缸；节气门则是发动机的“嗓门”——踩油门踩的是它，它开多大，发动机就吸进多少空气、出多大动力。">
+        <rect x="250" y="354" width="28" height="20" rx="5"/>
+        <path d="M264 374 q -6 10 -20 8" fill="none" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- ============ 电器（紫） ============ -->
+    <g id="g-ele" fill="var(--purple)">
+      <g class="pt" data-id="battery" data-sys="ele" data-name="蓄电池" data-desc="一块 12V 铅酸电池：点火瞬间给起动机提供大电流，熄火后维持防盗和车锁记忆。冬天打不着火，多半是它亏电了。">
+        <rect x="120" y="352" width="40" height="26" rx="3"/>
+        <rect x="126" y="347" width="6" height="6" rx="1"/>
+        <rect x="148" y="347" width="6" height="6" rx="1"/>
+        <text x="140" y="369" text-anchor="middle" class="wt">12V</text>
+      </g>
+      <g class="pt" data-id="alternator" data-sys="ele" data-name="发电机" data-desc="由发动机皮带带动，行驶时给全车电子设备供电，并把多余的电充回蓄电池；长途开下来电反而更足，靠的就是它。">
+        <circle cx="158" cy="386" r="9"/>
+        <circle cx="158" cy="386" r="3" fill="var(--background)"/>
+      </g>
+      <g class="pt" data-id="dash" data-sys="ele" data-name="仪表台与方向盘" data-desc="人与车交互的窗口：车速、转速、油量、水温与各类报警灯都在这里显示。红灯亮表示需立即停车检查，黄灯亮提示尽快检修。">
+        <rect x="338" y="350" width="42" height="17" rx="6"/>
+        <line x1="322" y1="358" x2="340" y2="354" stroke="var(--purple)" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="318" cy="359" r="6" fill="none" stroke="var(--purple)" stroke-width="4"/>
+      </g>
+      <g class="pt" data-id="headlight" data-sys="ele" data-name="前大灯" data-desc="夜间照明的主力，卤素、LED、激光光源的亮度与寿命依次提升；它同时集成近光、远光、转向灯和日行灯，是车“看路”也更“被看见”的关键。">
+        <path d="M86 392 L 114 386 L 116 404 L 90 406 z"/>
+      </g>
+      <g class="pt" data-id="taillight" data-sys="ele" data-name="尾灯" data-desc="集成刹车灯、转向灯、倒车灯与示宽灯；刹车灯功率大、亮度高，就是要让后车在白天也能第一时间读懂你的动作。">
+        <rect x="890" y="374" width="16" height="26" rx="3"/>
+      </g>
+      <g class="pt" data-id="spark" data-sys="ele" data-name="火花塞（点火系统）" data-desc="一秒跳出几十次的电火花：点火线圈把 12V 电瞬间升到上万伏，击穿火花塞间隙点燃混合气。火花塞烧蚀老化会缺火，表现为怠速抖动、油耗升高。">
+        <g fill="var(--purple)">
+          <rect x="185" y="361" width="4" height="10" rx="1.5"/>
+          <rect x="199" y="361" width="4" height="10" rx="1.5"/>
+          <rect x="213" y="361" width="4" height="10" rx="1.5"/>
+        </g>
+        <line x1="187" y1="361" x2="205" y2="352" stroke="var(--purple)" stroke-width="2"/>
+        <line x1="201" y1="361" x2="212" y2="352" stroke="var(--purple)" stroke-width="2"/>
+        <line x1="215" y1="361" x2="220" y2="352" stroke="var(--purple)" stroke-width="2"/>
+      </g>
+      <g class="pt" data-id="starter" data-sys="ele" data-name="起动机" data-desc="按下点火按钮的第一声“咔嗒”就是它：起动机的小齿轮啮合到发动机飞轮齿圈，用蓄电池的电流把曲轴摇转到几百转，发动机“自己会呼吸”了它就退出。">
+        <rect x="294" y="380" width="24" height="13" rx="6"/>
+        <rect x="316" y="377" width="11" height="9" rx="3"/>
+      </g>
+      <g class="pt" data-id="ac" data-sys="ele" data-name="空调压缩机与冷凝器" data-desc="压缩机由皮带驱动，把制冷剂压成高温高压气体，送到水箱前方的冷凝器散热液化，再经膨胀阀降压吸热带走车内热量——空调制冷不烧油，吃的是发动机的功率。">
+        <circle cx="140" cy="428" r="9"/>
+        <circle cx="140" cy="428" r="3" fill="var(--background)"/>
+        <rect x="94" y="394" width="5" height="50" rx="2"/>
+      </g>
+    </g>
+
+    <!-- ============ 车身（橙） ============ -->
+    <g id="g-body" fill="var(--orange)">
+      <g class="pt" data-id="shell" data-sys="body" data-name="车身壳体" data-desc="承载式车身是整车的“骨架”：乘员、发动机、底盘都装在它上面。碰撞时车头车尾的溃缩区负责吸能，中间乘员舱用高强度钢撑住——这就是安全车身的设计思路。">
+        <path class="shellmask" d="M80 448 V400 Q80 386 96 382 L118 378 C 190 368 260 366 306 366 L318 364 L402 296 Q410 290 422 290 L585 290 Q598 290 606 296 L678 360 L790 366 Q862 368 896 380 Q916 388 918 402 V448 L852 448 A60 60 0 0 0 724 448 L276 448 A60 60 0 0 0 148 448 L84 448 Z"/>
+        <g stroke="var(--orange)" stroke-width="2.5" fill="none" opacity=".75">
+          <line x1="88" y1="410" x2="104" y2="408"/>
+          <line x1="88" y1="416" x2="106" y2="414"/>
+        </g>
+      </g>
+      <g class="pt" data-id="glass" data-sys="body" data-name="挡风玻璃与车窗" data-desc="现在多为夹层玻璃：两片玻璃中间夹一层 PVB 胶膜，破碎时不飞溅也不被击穿；侧窗多为钢化玻璃，一碎成颗粒。后挡风玻璃里还印着加热除雾的电阻丝。">
+        <path d="M330 366 L 404 300 Q 410 296 420 296 L 583 296 Q 594 296 600 302 L 664 362 Z" fill="var(--background)" fill-opacity=".55" stroke="var(--orange)" stroke-width="2.5" stroke-linejoin="round"/>
+        <g fill="var(--orange)">
+          <path d="M438 296 L 428 296 L 452 364 L 462 364 Z"/>
+          <path d="M548 296 L 538 296 L 548 364 L 558 364 Z"/>
+        </g>
+      </g>
+      <g class="pt" data-id="mirror" data-sys="body" data-name="车门后视镜" data-desc="行车安全的“第三只眼”，倒车、变道全靠它；现在不少车配了电动折叠和盲区监测，能在侧后方有车靠近时闪灯提醒。">
+        <path d="M332 354 l -20 -10 q -6 10 2 14 q 10 4 18 -4 z"/>
+      </g>
+      <g class="pt" data-id="doors" data-sys="body" data-name="车门与内饰板" data-desc="车门里藏着防撞钢梁、玻璃升降器和音响喇叭：侧面碰撞时防撞梁把冲击力分散到前后柱，是乘客的第一道防线。内饰板下还有隔音棉与线束。">
+        <line x1="306" y1="368" x2="306" y2="444" stroke="var(--orange)" stroke-width="2.5" fill-opacity="0"/>
+        <line x1="560" y1="364" x2="560" y2="444" stroke="var(--orange)" stroke-width="2.5" fill-opacity="0"/>
+        <rect x="352" y="384" width="26" height="6" rx="3"/>
+        <rect x="596" y="384" width="26" height="6" rx="3"/>
+      </g>
+      <g class="pt" data-id="seats" data-sys="body" data-name="座椅（内饰）" data-desc="由钢骨架、滑轨、发泡填充和蒙皮组成，滑轨负责前后调节。头枕不是“靠着舒服”的装饰——追尾时它托住头部，保护颈椎不被甩伤。">
+        <rect x="418" y="316" width="12" height="44" rx="5"/>
+        <rect x="414" y="308" width="11" height="8" rx="4"/>
+        <rect x="422" y="356" width="46" height="12" rx="5"/>
+        <rect x="578" y="316" width="12" height="44" rx="5"/>
+        <rect x="574" y="308" width="11" height="8" rx="4"/>
+        <rect x="582" y="356" width="46" height="12" rx="5"/>
+      </g>
+    </g>
+
+   </g>
+  </g>
+</svg>
+</div>
+
+<div class="panel">
+  <div id="info" class="stage card" style="padding:14px 16px;min-height:120px">
+    <div id="info-empty" class="text-small text-muted">点击图中的彩色零件（或右侧列表），查看它的结构和汽车知识。开启「拆解视图」还可以把四大系统分层散开。</div>
+    <div id="info-box" hidden>
+      <div class="viz-row-wrap" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 id="i-name"></h3><span class="badge" id="i-sys"></span>
+      </div>
+      <p class="text-small" id="i-desc" style="margin-top:8px"></p>
+    </div>
+  </div>
+  <div style="flex:0 1 440px">
+    <div id="legend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+    <div id="list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+</div>
+</main>
+
+<script>
+const SYS = { eng: ['发动机', 'var(--red)'], chs: ['底盘', 'var(--blue)'], body: ['车身', 'var(--orange)'], ele: ['电器', 'var(--purple)'] };
+const pts = [...document.querySelectorAll('.pt')];
+let filterSys = 'all', selId = null;
+
+const legend = document.getElementById('legend');
+[['all', '全部', 'var(--muted-foreground)'], ...Object.entries(SYS).map(([k, [n, c]]) => [k, n, c])]
+.forEach(([k, n, c]) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'leg' + (k === 'all' ? ' on' : '');
+  b.innerHTML = `<i style="background:${c}"></i>${n}`;
+  b.addEventListener('click', () => {
+    filterSys = k;
+    legend.querySelectorAll('.leg').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); refresh(); fillList();
+  });
+  legend.appendChild(b);
+});
+
+const list = document.getElementById('list');
+function fillList() {
+  list.textContent = '';
+  pts.filter(p => filterSys === 'all' || p.dataset.sys === filterSys)
+  .sort((a, b) => a.dataset.name.localeCompare(b.dataset.name, 'zh'))
+  .forEach(p => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn btn-xs' + (p.dataset.id === selId ? ' btn-primary' : '');
+    b.textContent = p.dataset.name;
+    b.addEventListener('click', () => select(p.dataset.id));
+    list.appendChild(b);
+  });
+}
+
+function refresh() {
+  pts.forEach(p => p.classList.toggle('dimmed', filterSys !== 'all' && p.dataset.sys !== filterSys));
+  pts.forEach(p => p.classList.toggle('sel', p.dataset.id === selId));
+}
+
+function select(id) {
+  selId = id;
+  const p = pts.find(x => x.dataset.id === id);
+  document.getElementById('info-empty').hidden = !!p;
+  document.getElementById('info-box').hidden = !p;
+  if (p) {
+    document.getElementById('i-name').textContent = p.dataset.name;
+    const s = document.getElementById('i-sys');
+    s.textContent = SYS[p.dataset.sys][0];
+    s.style.background = SYS[p.dataset.sys][1];
+    document.getElementById('i-desc').textContent = p.dataset.desc;
+  }
+  refresh(); fillList();
+}
+
+pts.forEach(p => p.addEventListener('click', () => select(p.dataset.id)));
+fillList();
+
+const stageSvg = document.querySelector('.stage');
+const btnE = document.getElementById('btnExplode'), btnX = document.getElementById('btnXray');
+btnE.addEventListener('click', () => {
+  stageSvg.classList.toggle('exploded');
+  const on = stageSvg.classList.contains('exploded');
+  btnE.textContent = on ? '复原整车' : '拆解视图';
+});
+btnX.addEventListener('click', () => {
+  stageSvg.classList.toggle('xray-reject');
+  btnX.textContent = stageSvg.classList.contains('xray-reject') ? '车身透视：关' : '车身透视：开';
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  stageSvg.classList.remove('exploded');
+  btnE.textContent = '拆解视图';
+  btnX.textContent = '车身透视：开';
+  stageSvg.classList.remove('xray-reject');
+});
+</script>
+</body>
+</html>
